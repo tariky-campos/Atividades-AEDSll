@@ -1,12 +1,14 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #define TAMAREA 100
 #define TRUE 1
 #define FALSE 0
 
+
 typedef int TipoApontador;
-typedef int TipoChave;
+typedef char TipoChave[25];
 typedef struct TipoItem {
   TipoChave Chave;
   /* Outros Componentes */
@@ -66,7 +68,7 @@ void InsereItem(TipoItem Item, TipoArea *Area)
     return;
   }
   Pos = Area->Primeiro;
-  if (Item.Chave < Area->Itens[Pos].Item.Chave)
+  if (strcmp(Item.Chave, Area->Itens[Pos].Item.Chave)<0)
   { /* Insercao realizada na primeira posicao */
     Area->Itens[Disp].Ant = -1;
     Area->Itens[Disp].Prox = Pos;
@@ -76,7 +78,7 @@ void InsereItem(TipoItem Item, TipoArea *Area)
   }
   IndiceInsercao = Area->Itens[Pos].Prox;
   while (IndiceInsercao != -1 &&
-     Area->Itens[IndiceInsercao].Item.Chave < Item.Chave) 
+     strcmp(Area->Itens[IndiceInsercao].Item.Chave,Item.Chave)<0) 
     { Pos = IndiceInsercao;
       IndiceInsercao = Area->Itens[Pos].Prox;
     }
@@ -140,7 +142,7 @@ void ImprimeArea(TipoArea *Area)
   printf("Numero de Celulas Ocupadas = %d\n", Area->NumCelOcupadas);
   Pos = Area->Primeiro;
   while (Pos != -1) 
-    { printf("%d\n", Area->Itens[Pos].Item.Chave);
+    { printf("%s\n", Area->Itens[Pos].Item.Chave);
       Pos = Area->Itens[Pos].Prox;
     }
 }
@@ -179,7 +181,9 @@ void RetiraMin(TipoArea *Area, TipoRegistro *R, int *NRArea)
 void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, 
               TipoArea Area, int Esq, int Dir, int *i, int *j)
 { int Ls = Dir, Es = Dir, Li = Esq, Ei = Esq, 
-      NRArea = 0, Linf = INT_MIN, Lsup = INT_MAX;
+      NRArea = 0; TipoChave linf, lsup;
+    strcpy(linf,"");
+    strcpy(lsup, "zzzzzzzzzzz");
   short OndeLer = TRUE;  TipoRegistro UltLido, R;
   fseek (*ArqLi, (Li - 1)* sizeof(TipoRegistro), SEEK_SET );
   fseek (*ArqEi, (Ei - 1)* sizeof(TipoRegistro), SEEK_SET );
@@ -197,12 +201,12 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs,
       else if (Li == Ei) LeInf(ArqLi, &UltLido, &Li, &OndeLer);
            else if (OndeLer) LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
                 else LeInf(ArqLi, &UltLido, &Li, &OndeLer);
-      if (UltLido.Chave > Lsup) 
+      if (strcmp(UltLido.Chave, lsup)>0) 
       { *j = Es;
         EscreveMax(ArqLEs, UltLido, &Es);
         continue;
       }
-      if (UltLido.Chave < Linf) 
+      if (strcmp(UltLido.Chave,linf)<0) 
       { *i = Ei;
         EscreveMin(ArqEi, UltLido, &Ei);
         continue;
@@ -211,11 +215,11 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs,
       if (Ei - Esq < Dir - Es) 
       { RetiraMin(&Area, &R, &NRArea);
         EscreveMin(ArqEi, R, &Ei);
-        Linf = R.Chave;
+        strcpy(linf,R.Chave);
       } 
       else { RetiraMax(&Area, &R, &NRArea);
              EscreveMax(ArqLEs, R, &Es);
-             Lsup = R.Chave;
+             strcpy(lsup, R.Chave);
            }
     }
   while (Ei <= Es) 
@@ -245,28 +249,36 @@ void QuicksortExterno(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs,
 int main(int argc, char *argv[])
 { ArqLi = fopen ("teste.dat", "wb");
   if(ArqLi == NULL) {printf("Arquivo nao pode ser aberto\n "); exit(1);}
-  R.Chave = 5;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 3;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 10; fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 6;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 1;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 7;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
-  R.Chave = 4;  fwrite(&R, sizeof(TipoRegistro), 1, ArqLi);
+  int N,n_sorteados,count =1;
+  char nome[25];
+  scanf("%d %d",&N,&n_sorteados);
+  for(int i=0; i<N;i++){
+    scanf("%s",nome);
+    strcpy(R.Chave, nome); fwrite(&R,sizeof(TipoRegistro), 1, ArqLi);
+  }
+
   fclose(ArqLi);
   ArqLi = fopen ("teste.dat", "r+b");
   if (ArqLi == NULL) {printf("Arquivo nao pode ser aberto\n"); exit(1);} 
-  ArqEi = fopen ("teste.dat", "r+b");
+  ArqEi = fopen("teste.dat", "r+b");
   if (ArqEi == NULL) {printf("Arquivo nao pode ser aberto\n"); exit(1);}
-  ArqLEs = fopen ("teste.dat", "r+b");
+  ArqLEs = fopen("teste.dat", "r+b");
   if (ArqLEs == NULL) 
   { printf ("Arquivo nao pode ser aberto\n");  exit(1);
   }
-  QuicksortExterno(&ArqLi, &ArqEi, &ArqLEs, 1, 7);
+  QuicksortExterno(&ArqLi, &ArqEi, &ArqLEs, 1, N);
   fflush(ArqLi); fclose(ArqEi); fclose(ArqLEs);
   fseek(ArqLi,0, SEEK_SET);
+  
   while(fread(&R, sizeof(TipoRegistro), 1, ArqLi))  
-    { printf("Registro=%d\n", R.Chave);
+    { 
+      if(n_sorteados == count){
+        printf("%s\n",R.Chave);
+        return 0;
+      }
+      count++;
     }
+  
   fclose(ArqLi);
   return 0;
 }
