@@ -24,8 +24,6 @@ TipoDicionario Tabela;
 TipoPesos p;
 TipoItem Elemento;
 
-char instrutor1[N] = "Estela";
-char instrutor2[N] = "Altamiro";
 char carro1[5][N];
 char carro2[5][N];
 int idx1 = 0, idx2 = 0;
@@ -106,12 +104,8 @@ int main() {
   GeraPesos(p);
 
   int n;
-  char nome[N];
   scanf("%d", &n);
   getchar();
-
-  int instrutor1_usado = 0;
-  int instrutor2_usado = 0;
 
   for (int i = 0; i < n; i++) {
     LerLinha(Elemento.Chave, N);
@@ -120,38 +114,24 @@ int main() {
 
     Insere(Elemento, p, Tabela);
 
-    int par = (i % 2 == 0);
-
-    if (strcmp(Elemento.Chave, instrutor1) == 0) {
-      if (!instrutor1_usado) {
-        if (par && idx2 < 5) strcpy(carro2[idx2++], Elemento.Chave);
-        else if (idx1 < 5) strcpy(carro1[idx1++], Elemento.Chave);
-        instrutor1_usado = 1;
-      }
-    } else if (strcmp(Elemento.Chave, instrutor2) == 0) {
-      if (!instrutor2_usado) {
-        if (par && idx2 < 5) strcpy(carro2[idx2++], Elemento.Chave);
-        else if (idx1 < 5) strcpy(carro1[idx1++], Elemento.Chave);
-        instrutor2_usado = 1;
-      }
-    } else {
-      if (par && idx2 < 5) strcpy(carro2[idx2++], Elemento.Chave);
-      else if (idx1 < 5) strcpy(carro1[idx1++], Elemento.Chave);
-    }
+    // Alternar entre os carros: par no carro 2, ímpar no carro 1
+    if (i % 2 == 0 && idx2 < 5)
+      strcpy(carro2[idx2++], Elemento.Chave);
+    else if (idx1 < 5)
+      strcpy(carro1[idx1++], Elemento.Chave);
   }
 
   MostrarCarros();
 
+  char nome[N];
   while (1) {
     LerLinha(nome, N);
     if (strcmp(nome, "0") == 0) break;
 
-    if (strcmp(nome, instrutor1) == 0 || strcmp(nome, instrutor2) == 0) {
-      printf("Instrutor Confirmado\n");
-    } else if (Pesquisa(nome, p, Tabela) < M)
-      printf("Aluno Confirmado\n");
+    if (Pesquisa(nome, p, Tabela) < M)
+      printf("Pessoa Confirmada\n");
     else
-      printf("Aluno Não Confirmado\n");
+      printf("Pessoa Não Confirmada\n");
   }
 
   return 0;
