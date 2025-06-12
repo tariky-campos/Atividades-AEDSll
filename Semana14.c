@@ -1,6 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
-#define M 2
+#define M 1
 #define MM  (M * 2)
 #define FALSE 0
 #define TRUE  1
@@ -260,6 +260,7 @@ int main() {
   Inicializa(&D);
 
   printf("=== INSERCAO DE VALORES NA ARVORE B ===\n");
+  printf("Ordem do M == %d\n",M);
   printf("Digite valores inteiros para inserir na arvore (0 para encerrar):\n");
 
   while (1) {
