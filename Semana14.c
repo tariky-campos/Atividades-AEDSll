@@ -250,33 +250,7 @@ void Testa(TipoApontador p)
   TestaI(p->p[p->n], p->r[i].Chave, TRUE);
 }
 
-int main(int argc, char *argv[])
-{ TipoRegistro x;
-  TipoPagina *D;
-  Inicializa(&D);
-  printf("Chave: ");
-  scanf("%ld%*[^\n]", &x.Chave);
-  getchar();
-  while (x.Chave != 0) 
-    { Insere(x, &D);
-      Imprime(D); printf("Chave: ");
-      scanf("%ld%*[^\n]", &x.Chave);
-      getchar();
-    }
-  Testa(D);
-  printf("Chave: ");
-  scanf("%ld%*[^\n]", &x.Chave);
-  getchar();
-  while (x.Chave != 0) 
-    { Retira(x.Chave, &D);
-      Imprime(D);
-      printf("Chave: ");
-      scanf("%ld%*[^\n]", &x.Chave);
-      getchar();
-    }
-  Testa(D);
-  return 0;
-}
+
 
 
 // Função principal
@@ -300,7 +274,13 @@ int main() {
     printf("\nArvore B apos inserir %ld:\n", x.Chave);
     Imprime(D);
   }
-
-  Testa(D);
+  printf("Digite valores inteiros para remover da arvore (0 para encerrar):\n");
+  while(1){
+    printf("Chave: ");
+    scanf("%d",&x.Chave);
+    if(x.Chave == 0) return 0;
+    Retira(x.Chave,&D);
+    Imprime(D);
+  }
   return 0;
 }
